@@ -12,7 +12,40 @@ Add to path ``` export PATH=/c/terraform/:$PATH ```
 
 
 #### HCL (HashiCorp Configuration Language)
-###### Variables
+###### Variables types
+String
+```
+"Text"
+```
+Number
+```
+123
+```
+Bool
+```
+true/false
+```
+List(type)
+```
+[1,2,3,4]
+```
+Map(type)
+```
+{"key" = "value"}
+```
+Object({<ATTR NAME> = <TYPE>, ...})
+```
+{
+    firstname = "Name"
+    age = 20
+}
+```
+Tuple([<TYPE>, ...])
+```
+[0, "text", false]
+```
+
+###### Variables example
 ```
 variable "myvar" {
     type = "string"
@@ -66,10 +99,101 @@ resource "aws_instance" "example" {
 ```
 
 ###### terraform.tfvars
-The placeholders can be initialized inside the terraform.tfvars file.
+The placeholders values can be initialized inside the terraform.tfvars file.
 
 ``` 
 AMIS = "..."
 AWS_REGION = "..."
+```
+
+#### Set up AWS account
+1. Create an AWS account
+2. Create a new IAM user with the appropriate roles
+3. Export the acces keys
+
+#### First instance deployment with terraform
+###### main (.tf)
+``` 
+provider "aws" {
+  access_key = "ACCESS_KEY_HERE"
+  secret_key = "SECRET_KEY_HERE"
+  region     = "us-east-1"
+}
+
+resource "aws_instance" "example" {
+  ami           = "ami-0d729a60"
+  instance_type = "t2.micro"
+}
+```
+###### versions (.tf)
+``` 
+terraform {
+  required_version = ">= 0.12"
+}
+```
+
+#### Terraform commands
+
+###### initialize
+```terraform init```
+
+###### apply
+```terraform apply```
+
+###### destroy
+```terraform destroy```
+
+###### plan
+To see all the commands that are planing to run
+```terraform plan```
+
+###### safe way
+Save the changes to an out file, applying only the new changes to the infrastructure
+```terraform plan -out out.terraform```
+
+```terraform apply out.terraform```
+
+```rm out.terraform```
+
+
+#### Terraform example
+###### provider (.tf)
+```
+provider "aws" {
+  access_key = "${ACCESS_KEY_HERE}"
+  secret_key = "${SECRET_KEY_HERE}"
+  region     = "${AWS_REGION}"
+}
+```
+
+###### instance (.tf)
+```
+resource "aws_instance" "example" {
+  ami           = "${lookup(var.AMIS, var.AWS_REGION)}"
+  instance_type = "t2.micro"
+}
+```
+###### vars (.tf)
+```
+variable "ACCESS_KEY_HERE" {}
+variable "SECRET_KEY_HERE" {}
+variable "AWS_REGION" {
+    type    = "string"
+    default = "eu-west-1"
+}
+variable "AMIS" {
+    type    = "map"
+    default = {
+        us-east-1 = "ami-13be557e"
+        us-west-1 = "ami-06b94666"
+        eu-west-1 = "ami-0d729a60"
+    }
+}
+```
+###### terraform (.tfvars)
+Always inside the .gitignore file
+```
+ACCESS_KEY_HERE = ""
+SECRET_KEY_HERE = ""
 ```
 
