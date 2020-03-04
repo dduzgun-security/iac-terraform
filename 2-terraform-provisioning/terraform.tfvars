@@ -1,0 +1,2 @@
+ACCESS_KEY_HERE = "..."
+SECRET_KEY_HERE = "..."
