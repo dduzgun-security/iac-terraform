@@ -143,6 +143,21 @@ terraform {
 ###### destroy
 ```terraform destroy```
 
+###### format code
+```terraform fmt```
+
+###### get (installs and updates modules)
+```terraform get```
+
+###### graph (visual representaion of configuration and execution plan)
+```terraform graph```
+
+###### output
+```terraform output```
+
+###### show (readable state and plan)
+```terraform show```
+
 ###### plan
 To see all the commands that are planing to run
 ```terraform plan```

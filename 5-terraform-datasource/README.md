@@ -1,16 +1,28 @@
-# States
+# Datasource
 #### Description
-Terraform keeps the remote state of the infrastructure in terraform.tfstate after each apply
-There is also a backup of the previous state in terraform.tfstate.backup after each apply
+Datasources provides dynamic information that can always change
 
+#### Example
+```
+data "aws_ip_ranges" "european_ec2" {
+    region = ["eu-west-1". "eu-cetral-1"]
+    services = ["ec2"]
+}
 
-
-#### Saving the state
-Saving states helps to collaborate and offers a way to not store sensitive information locally
-
-1. The state file can be stored in a verison control such a git (possible conflicts)
-2. The state file can be saved remote using backend functionalities in terraform inside local, s3 (with locking mechanism using dynamoDB), consul (with locking) or terraform enterprise.
-3. Enhanced backends are possible also
+resource "aws_security_group" "from_europe" {
+    name = "from_europe"
+    ingress {
+        from_port = "443"
+        to_port = "443"
+        protocol = "tcp"
+        cidr_blocks = ["${data.aws_ip_ranges.european_ec2.cidr_blocks}"]
+    }
+    tags {
+        CreateDate = "${data.aws_ip_ranges.european_ec2.create_date}"
+        SyncToken = "${data.aws_ip_ranges.european_ec2.sync_token}"
+    }
+}
+```
 
 #### Configuring
 1. Add the backend to a .tf file
@@ -20,7 +32,7 @@ Saving states helps to collaborate and offers a way to not store sensitive infor
 ###### Exemple (consul)
 ```
 terraform {
-    backend "consul" {
+    "backend" "consul" {
         address = "demo.consul.io"
         path = "terraform/myproject"
     }
@@ -30,7 +42,7 @@ terraform {
 ###### Exemple (s3)
 ```
 terraform {
-    backend "s3" {
+    "backend" "s3" {
         bucket = "mybucket"
         region = "eu-west-1"
         key = "terraform/myproject"
